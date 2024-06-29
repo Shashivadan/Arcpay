@@ -1,5 +1,10 @@
+"use client";
+
 import prisma from "@repo/db/client";
 
+import { useBalance } from "@repo/store/balance";
+
 export default function Home() {
-  return <main className=" text-black">hello</main>;
+  const value = useBalance();
+  return <main className=" text-black">hi there {value} </main>;
 }
