@@ -17,6 +17,7 @@
     "recoil": "^0.7.7"
   },
   "devDependencies": {
+    "@repo/ui": "*",
     "@repo/db": "*",
     "@repo/store": "*",
     "@repo/typescript-config": "*",

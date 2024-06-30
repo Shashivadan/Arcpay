@@ -1,5 +1,6 @@
 import prisma from "@repo/db/client";
 import bcrypt from "bcrypt";
+import { log } from "console";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -47,6 +48,7 @@ export const authOption: NextAuthOptions = {
         if (!credentials) {
           return null;
         }
+
         const { phone, password } = credentials as Credentials;
         const existingUser = await prisma.users.findFirst({
           where: { number: phone },
@@ -57,6 +59,7 @@ export const authOption: NextAuthOptions = {
             password,
             existingUser.password
           );
+
           if (passwordValidation) {
             return {
               id: existingUser.id.toString(),
@@ -69,6 +72,7 @@ export const authOption: NextAuthOptions = {
 
         try {
           const hashPassword = await bcrypt.hash(password, 10);
+
           const user = await prisma.users.create({
             data: {
               number: phone,
