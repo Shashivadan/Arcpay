@@ -1,16 +1,13 @@
-"use client";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOption } from "@/lib/auth";
 
-import { useBalance } from "@repo/store/balance";
-import { Appbar } from "@repo/ui/appbar";
-import { useSession } from "next-auth/react";
-import { signIn, signOut } from "next-auth/react";
+export default async function page() {
+  const session = await getServerSession(authOption);
 
-export default function Home() {
-  const value = useBalance();
-  const session = useSession();
-  return (
-    <main className=" text-black ">
-      <div className=" bg-slate-500">balance : {value}</div>
-    </main>
-  );
+  if (session?.user) {
+    redirect("/dashboard");
+  } else {
+    redirect("/api/auth/signin");
+  }
 }
