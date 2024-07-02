@@ -15,8 +15,6 @@ export const SidebarItem = ({
   const router = useRouter();
   const pathname = usePathname();
   const selected = pathname === href;
-  const session = useSession();
-  console.log("session", session);
 
   return (
     <div

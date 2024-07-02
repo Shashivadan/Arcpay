@@ -61,4 +61,6 @@ app.post("/hdfcWebhook", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(3003);
+app.listen(process.env.PORT || 4000, () => {
+  console.log(`server port on ${process.env.PORT}`);
+});
