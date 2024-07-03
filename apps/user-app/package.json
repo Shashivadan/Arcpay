@@ -17,10 +17,10 @@
     "recoil": "^0.7.7"
   },
   "devDependencies": {
-    "@repo/ui": "*",
     "@repo/db": "*",
     "@repo/store": "*",
     "@repo/typescript-config": "*",
+    "@repo/ui": "*",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",

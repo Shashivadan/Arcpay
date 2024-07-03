@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 
 export async function createOnRamptxn(to: number, provider: string) {
   const session = await getServerSession(authOption);
-  const userId = session.user.id;
+  // const userId = session.user.id;
 
   if (!session?.user || !session.user?.id) {
     return {
@@ -37,8 +37,6 @@ export async function createOnRamptxn(to: number, provider: string) {
   } catch (error) {
     console.log(error);
 
-    return {
-      message: "transaction failed",
-    };
+    return new Error("some thin went worng");
   }
 }

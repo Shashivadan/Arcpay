@@ -4,13 +4,15 @@ import prisma from "@repo/db/client";
 
 const app: Express = express();
 
+app.use(express.json());
+
 interface ReqType {
-  token: string;
+  token: string | any;
   userId: string;
   amount: string;
 }
 
-app.post("/hdfcWebhook", async (req: Request, res: Response) => {
+app.post("/bankwebhook", async (req: Request, res: Response) => {
   //TODO: Add zod validation here?
   const paymentInformation: ReqType = {
     token: req.body.token,
