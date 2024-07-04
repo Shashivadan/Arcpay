@@ -55,10 +55,7 @@ export const AddMoney = () => {
           <Button
             onClick={async () => {
               if (provider === "select") return alert("select the provider");
-              console.log(amount, provider);
-
               await createOnRamptxn(amount, provider);
-              window.location.href = redirectUrl;
             }}
           >
             Add Money
