@@ -1,20 +1,35 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ModeToggle } from "../mode-toggle";
+import { Button } from "../ui/button";
 
 export default function Nav() {
+  const router = useRouter();
   return (
     <div>
-      <header className="sticky top-0 z-10 w-full bg-background/95 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary ">
+      <header className="fixed top-0 z-10 w-full bg-background/95 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary dark:text-white ">
         <div className=" max-w-screen-xl m-auto">
           <div className="mx-4 sm:mx-8 flex h-14 items-center">
-            <div className="flex items-center space-x-4 lg:space-x-0 text-white">
+            <div className="flex items-center space-x-4 lg:space-x-0  text-black dark:text-white  ">
               {/* <SheetMenu /> */}
-              <h1 className="font-bold">ArcPay</h1>
+              <h1 className="font-bold ">ArcPay</h1>
             </div>
             <div className="flex flex-1 items-center space-x-2 justify-end">
-              <ModeToggle />
               {/* <UserNav /> */}
+              <Button
+                onClick={() => router.push("/signin")}
+                className=" h-9 font-semibold text-white w-24 bg-zinc-900 hover:bg-transparent"
+              >
+                Sign-In
+              </Button>
+              <Button
+                onClick={() => router.push("/signup")}
+                className="h-9 font-semibold text-black w-24 hover:bg-transparent hover:text-white "
+              >
+                Sign-Up
+              </Button>
+              <ModeToggle />
             </div>
           </div>
         </div>

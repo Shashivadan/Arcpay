@@ -1,5 +1,17 @@
 import type { Config } from "tailwindcss";
 // import { fontFamily } from "tailwindcss/defaultTheme";
+import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette";
+
+function addVariablesForColors({ addBase, theme }: any) {
+  let allColors = flattenColorPalette(theme("colors"));
+  let newVars = Object.fromEntries(
+    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
+  );
+
+  addBase({
+    ":root": newVars,
+  });
+}
 
 const config = {
   darkMode: ["class"],
@@ -17,6 +29,9 @@ const config = {
       screens: {
         "2xl": "1400px",
       },
+    },
+    animation: {
+      "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
     },
     extend: {
       colors: {
@@ -68,6 +83,11 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "border-beam": {
+          "100%": {
+            "offset-distance": "100%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -75,7 +95,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), addVariablesForColors],
 } satisfies Config;
 
 export default config;

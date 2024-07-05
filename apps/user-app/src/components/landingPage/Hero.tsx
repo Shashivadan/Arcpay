@@ -1,34 +1,21 @@
-import { motion } from "framer-motion";
+"use client";
+
+import BlurIn from "../magicui/blur-in";
+import { Button } from "@/components/ui/button";
 
 export function Hero() {
-  const words = "Staggered Letter Pull Up";
-  const letters = words.split("");
-
-  const pullupVariant = {
-    initial: { y: 100, opacity: 0 },
-    animate: (i: any) => ({
-      y: 0,
-      opacity: 1,
-      transition: {
-        delay: i * 0.05, // Delay each letter's animation by 0.05 seconds
-      },
-    }),
-  };
-
   return (
-    <div className="flex justify-center">
-      {letters.map((letter, i) => (
-        <motion.h1
-          key={i}
-          variants={pullupVariant}
-          initial="initial"
-          animate="animate"
-          custom={i}
-          className="text-center font-display text-4xl font-bold tracking-[-0.02em] drop-shadow-sm md:text-7xl md:leading-[5rem]"
-        >
-          {letter === " " ? <span>&nbsp;</span> : letter}
-        </motion.h1>
-      ))}
+    <div className=" flex flex-col gap-4 items-center justify-center px-4">
+      <BlurIn
+        word="Background lights are cool you know."
+        className="text-3xl md:text-7xl font-bold dark:text-white text-center"
+      ></BlurIn>
+      <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
+        And this, is chemical burn.
+      </div>
+      <Button className="bg-black dark:bg-white font-bold dark:text-black px-4 py-2">
+        Debug now
+      </Button>
     </div>
   );
 }
