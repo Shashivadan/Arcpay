@@ -1,30 +1,24 @@
+import { otpGenarater } from "@/server/lib/otpGenerater";
 import prisma from "@repo/db/client";
 import bcrypt from "bcrypt";
-import { log } from "console";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  number: string;
-};
+interface User extends NextAuthUser {
+  isVerfiyed: boolean;
+}
 
 type Credentials = {
-  phone: string;
+  email: string;
   password: string;
 };
 
 declare module "next-auth" {
   interface Session {
-    user: {
-      id?: string;
-      name?: string;
-      email?: string;
-      image?: string;
-    };
+    user: User;
+  }
+  interface JWT {
+    isVerfiyed: boolean;
   }
 }
 
@@ -33,8 +27,8 @@ export const authOption: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        phone: {
-          label: "Phone Number",
+        email: {
+          label: "email",
           placeholder: "1234567890",
           type: "text",
           required: true,
@@ -46,135 +40,60 @@ export const authOption: NextAuthOptions = {
           required: true,
         },
       },
-      async authorize(credentials) {
-        if (!credentials.phone && credentials.password) {
-          return null;
+      async authorize(credentials): Promise<User | null> {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Please provide both email and password");
         }
 
-        const { phone, password } = credentials as Credentials;
+        const { email, password } = credentials;
         const existingUser = await prisma.users.findFirst({
-          where: { number: phone },
+          where: { email },
         });
 
-        if (existingUser) {
-          const passwordValidation = await bcrypt.compare(
-            password,
-            existingUser.password
-          );
-
-          if (passwordValidation) {
-            return {
-              id: existingUser.id.toString(),
-              name: existingUser.name,
-              email: existingUser.email,
-            };
-          }
-          return null;
+        if (!existingUser) {
+          throw new Error("No user found with this email");
         }
 
-        try {
-          const hashPassword = await bcrypt.hash(password, 10);
-
-          const user = await prisma.users.create({
-            data: {
-              number: phone,
-              password: hashPassword,
-            },
-          });
-          return {
-            id: user.id.toString(),
-            name: user.name,
-            email: user.email,
-          };
-        } catch (error) {
-          console.log(error);
+        if (existingUser.isVerfiyed === false) {
+          otpGenarater("shashivadan99@gmail.com", existingUser.name);
+          throw new Error("Please verify your email");
         }
 
-        return null;
+        const passwordValidation = await bcrypt.compare(
+          password,
+          existingUser.password
+        );
+
+        if (!passwordValidation) {
+          throw new Error("Incorrect password");
+        }
+
+        return {
+          id: existingUser.id.toString(),
+          name: existingUser.name,
+          email: existingUser.email,
+          isVerfiyed: existingUser.isVerfiyed,
+        };
       },
     }),
   ],
   secret: process.env.JWT_SECRET || "secret",
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.isVerfiyed = (user as User).isVerfiyed;
+      }
+      return token;
+    },
     async session({ token, session }) {
       if (token?.sub) {
-        session.user.id = token.sub;
+        session.user = {
+          ...session.user,
+          id: token?.sub,
+          isVerfiyed: token.isVerfiyed,
+        } as User;
       }
       return session;
     },
   },
 };
-
-// import db from "@repo/db/client";
-// import CredentialsProvider from "next-auth/providers/credentials";
-// import bcrypt from "bcrypt";
-
-// export const authOption = {
-//   providers: [
-//     CredentialsProvider({
-//       name: "Credentials",
-//       credentials: {
-//         phone: {
-//           label: "Phone number",
-//           type: "text",
-//           placeholder: "1231231231",
-//           required: true,
-//         },
-//         password: { label: "Password", type: "password", required: true },
-//       },
-//       // TODO: User credentials type from next-aut
-//       async authorize(credentials: any) {
-//         // Do zod validation, OTP validation here
-//         const hashedPassword = await bcrypt.hash(credentials.password, 10);
-//         const existingUser = await db.users.findFirst({
-//           where: {
-//             number: credentials.phone,
-//           },
-//         });
-
-//         if (existingUser) {
-//           const passwordValidation = await bcrypt.compare(
-//             credentials.password,
-//             existingUser.password
-//           );
-//           if (passwordValidation) {
-//             return {
-//               id: existingUser.id.toString(),
-//               name: existingUser.name,
-//               email: existingUser.number,
-//             };
-//           }
-//           return null;
-//         }
-
-//         try {
-//           const user = await db.users.create({
-//             data: {
-//               number: credentials.phone,
-//               password: hashedPassword,
-//             },
-//           });
-
-//           return {
-//             id: user.id.toString(),
-//             name: user.name,
-//             email: user.number,
-//           };
-//         } catch (e) {
-//           console.error(e);
-//         }
-
-//         return null;
-//       },
-//     }),
-//   ],
-//   secret: process.env.JWT_SECRET || "secret",
-//   callbacks: {
-//     // TODO: can u fix the type here? Using any is bad
-//     async session({ token, session }: any) {
-//       session.user.id = token.sub;
-
-//       return session;
-//     },
-//   },
-// };

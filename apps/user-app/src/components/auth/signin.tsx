@@ -25,29 +25,47 @@ import {
 } from "@/components/ui/form";
 
 import { PhoneInput } from "../Phone-input";
+import { signIn } from "next-auth/react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+
 const formSchema = z.object({
-  phoneNumber: z
-    .string()
-    .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
+  email: z.string().email({ message: "enter a vaild email" }),
   password: z.string(),
 });
 
 export function Signin() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phoneNumber: "",
+      email: "",
       password: "",
     },
   });
   const { register } = form;
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value);
+  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: value.email,
+        password: value.password,
+      });
+      if (result.error) {
+        console.log(result.error);
+        return;
+      }
+      if (result?.url) {
+        router.replace("/dashboard");
+        console.log(result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div>
@@ -64,19 +82,13 @@ export function Signin() {
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
-                  name="phoneNumber"
+                  name="email"
                   render={({ field }) => (
                     <FormItem className="flex flex-col items-start">
-                      <FormLabel className="text-left">Phone Number</FormLabel>
+                      <FormLabel className="text-left">Email</FormLabel>
                       <FormControl className="w-full">
-                        <PhoneInput
-                          defaultCountry={"IN"}
-                          countries={["US", "IN"]}
-                          placeholder="Enter a phone number"
-                          {...field}
-                        />
+                        <Input type="text" id="email" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}

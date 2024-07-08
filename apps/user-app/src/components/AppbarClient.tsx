@@ -7,6 +7,8 @@ import { Appbar } from "@repo/ui/appbar";
 export default function AppbarClient() {
   const router = useRouter();
   const session = useSession();
+  console.log(session);
+
   return (
     <div>
       <Appbar

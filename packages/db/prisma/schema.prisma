@@ -22,20 +22,20 @@ model Users {
   password                String 
   Balance                 Balance[]
   OnRampTransaction       OnRampTransaction[]
-  sentTransfers     p2pTransfer[]       @relation(name: "FromUserRelation")
-  receivedTransfers p2pTransfer[]       @relation(name: "ToUserRelation")
-  
+  sentTransfers           p2pTransfer[]       @relation(name: "FromUserRelation")
+  receivedTransfers       p2pTransfer[]       @relation(name: "ToUserRelation")
+  isVerfiyed              Boolean       @default(false)
 }
 
 
 model p2pTransfer {
-  id         Int          @id @default(autoincrement())
-  amount     Int
-  timestamp  DateTime
-  fromUserId Int
-  fromUser   Users         @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
-  toUserId   Int
-  toUser     Users         @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+  id                      Int          @id @default(autoincrement())
+  amount                  Int
+  timestamp               DateTime
+  fromUserId              Int
+  fromUser                Users         @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
+  toUserId                Int
+  toUser                  Users         @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
 }
 
 
@@ -50,7 +50,7 @@ model Merchant{
 model Balance {
   id                      Int           @id @default(autoincrement())
   userId                  Int           @unique
-  amount                  Int         
+  amount                  Int           @default(0)
   locked                  Int         
   user                    Users         @relation(fields: [userId], references: [id])
 }
@@ -68,8 +68,15 @@ model OnRampTransaction {
 }
 
 
+model OtpVerify {
+  id                       Int       @id                     @default(autoincrement())
+  email                    String    @unique
+  otp                      String 
+  expries                  DateTime
+
+}
 enum AuthType {
-  Google 
+  Google
   Github
 }
 

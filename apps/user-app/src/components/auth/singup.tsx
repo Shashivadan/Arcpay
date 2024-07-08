@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { isValidPhoneNumber } from "react-phone-number-input";
 import {
   Form,
   FormControl,
@@ -26,29 +25,34 @@ import { PhoneInput } from "../Phone-input";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid value email" }),
-  phoneNumber: z
-    .string()
-    .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-  password: z
-    .string()
-    .min(4, { message: "Password must be more then 4 letters" }),
-});
+import { useRouter } from "next/navigation";
+import { signUpFormSchema } from "@/types/authTypes";
+import axios from "axios";
 
 export function Signup() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+  const form = useForm<z.infer<typeof signUpFormSchema>>({
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       phoneNumber: "",
       email: "",
       password: "",
+      username: "",
     },
   });
-  const { register } = form;
+  const { register, setError } = form;
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value);
+  const onSubmit = async (value: z.infer<typeof signUpFormSchema>) => {
+    try {
+      const response = await axios.post("/api/signup", { ...value });
+      console.log("susses", response.data);
+      router.push("/verify/" + encodeURIComponent(value.email));
+    } catch (error) {
+      console.log("getting error", error);
+      setError("root", { message: "Soming Thing went worng" });
+    }
+
+    // router.replace("/verify/" + value.phoneNumber);
   };
   return (
     <div>
@@ -62,6 +66,28 @@ export function Signup() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col items-start">
+                      <FormLabel className="text-left">Username</FormLabel>
+                      <FormControl className="w-full">
+                        <Input
+                          {...register("username")}
+                          id="username"
+                          type="username"
+                          placeholder="xxxxxxxxx"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
@@ -83,7 +109,6 @@ export function Signup() {
                     </FormItem>
                   )}
                 />
-                <Label htmlFor="email">Email</Label>
               </div>
               <div className="grid gap-2">
                 <FormField
@@ -116,7 +141,6 @@ export function Signup() {
                       <FormControl className="w-full">
                         <Input id="password" type="password" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
