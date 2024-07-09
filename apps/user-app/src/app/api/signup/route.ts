@@ -5,7 +5,7 @@ import prisma from "@repo/db/client";
 import bcrypt from "bcrypt";
 import { otpGenarater } from "@/server/lib/otpGenerater";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const {
       password,
@@ -102,6 +102,4 @@ export async function POST(req: NextRequest, res: NextResponse) {
       { status: 500 }
     );
   }
-
-  return NextResponse.json({}, { status: 200 });
 }

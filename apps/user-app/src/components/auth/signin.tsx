@@ -46,7 +46,11 @@ export function Signin() {
       password: "",
     },
   });
-  const { register } = form;
+  const {
+    register,
+    setError,
+    formState: { errors },
+  } = form;
 
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
     try {
@@ -56,15 +60,15 @@ export function Signin() {
         password: value.password,
       });
       if (result.error) {
-        console.log(result.error);
+        setError("root", { message: result.error });
         return;
       }
       if (result?.url) {
         router.replace("/dashboard");
-        console.log(result);
       }
     } catch (error) {
       console.log(error);
+      setError("root", { message: error });
     }
   };
   return (
@@ -104,19 +108,23 @@ export function Signin() {
                       <FormControl className="w-full">
                         <Input id="password" type="password" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+              {errors.root && (
+                <div className=" text-sm  text-red-900 text-center">
+                  {errors.root.message}
+                </div>
+              )}
             </CardContent>
             <CardFooter className=" flex flex-col gap-3  ">
               <Button type="submit" className="w-full">
                 Sign In
               </Button>
-              <FormDescription className="dark:text-white text-black">
-                ddafafas
+              <FormDescription className="dark:text-white text-black  underline">
+                Create an account Here
               </FormDescription>
             </CardFooter>
           </Card>

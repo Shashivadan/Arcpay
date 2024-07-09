@@ -4,8 +4,6 @@ import OTPEmailTemplate from "@/components/email-verify";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// import { isValidPhoneNumber } from "react-phone-number-input"
-
 export async function otpGenarater(email: string, username: string) {
   try {
     const otp = crypto.randomInt(100000, 999999);

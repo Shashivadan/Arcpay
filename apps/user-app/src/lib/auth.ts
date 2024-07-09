@@ -55,8 +55,21 @@ export const authOption: NextAuthOptions = {
         }
 
         if (existingUser.isVerfiyed === false) {
-          otpGenarater("shashivadan99@gmail.com", existingUser.name);
-          throw new Error("Please verify your email");
+          const otp = await otpGenarater(
+            "shashivadan99@gmail.com",
+            existingUser.name
+          );
+          const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+          prisma.otpVerify.update({
+            where: { email: existingUser.email },
+            data: {
+              otp: hashOtp,
+              expries: new Date(Date.now() + 10 * 60 * 1000),
+            },
+          });
+          throw new Error(
+            "Please verify your email. A new otp is send to mail"
+          );
         }
 
         const passwordValidation = await bcrypt.compare(
