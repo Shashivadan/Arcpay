@@ -72,7 +72,6 @@ export function Signin() {
       if (result?.url) {
         router.replace("/dashboard");
       }
-      console.log(result?.url);
     } catch (error) {
       console.log("error", error);
 

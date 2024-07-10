@@ -16,27 +16,19 @@ export async function POST(req: NextRequest) {
 
     const isExisting = await prisma.users.findFirst({
       where: {
-        OR: [{ number: phoneNumber }, { email }],
+        OR: [{ number: phoneNumber }, { email: email }],
       },
     });
 
+    console.log(isExisting);
+
     if (isExisting) {
       if (isExisting.isVerfiyed === false) {
-        const { success, otp, message } = await otpGenarater(
-          "shashivadan99@gmail.com",
-          isExisting.name
-        );
-
-        if (!success) {
-          return NextResponse.json(
-            {
-              message,
-              success,
-            },
-            { status: 400 }
-          );
-        }
-        const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+        // const { success, otp, message } = await otpGenarater(
+        //   "shashivadan99@gmail.com",
+        //   isExisting.name
+        // );
+        const hashOtp = await bcrypt.hash(JSON.stringify("123456"), 10);
         await prisma.otpVerify.update({
           where: {
             email: isExisting.email,
@@ -57,7 +49,7 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json(
         { message: "email or number are already exist", success: false },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
@@ -110,7 +102,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+    const hashOtp = await bcrypt.hash(JSON.stringify("123456"), 10);
 
     const otpPrsima = await prisma.otpVerify.create({
       data: {

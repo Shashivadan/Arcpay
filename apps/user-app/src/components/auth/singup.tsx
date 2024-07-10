@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { signUpFormSchema } from "@/types/authTypes";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 
 export function Signup() {
   const router = useRouter();
@@ -52,8 +52,11 @@ export function Signup() {
       console.log("susses", response.data);
       router.push("/verify/" + encodeURIComponent(value.email));
     } catch (e) {
-      console.log("getting error", e);
-      setError("root", { message: errors.root.message });
+      // console.log("getting error", e);
+      if (e === null) throw new Error("Unrecoverable error!! Error is null!");
+      if (isAxiosError(e)) {
+        setError("root", { message: e.response.data.message });
+      }
     }
 
     // router.replace("/verify/" + value.phoneNumber);
@@ -150,6 +153,11 @@ export function Signup() {
                   )}
                 />
               </div>
+              {errors.root && (
+                <div className=" text-sm text-red-900 text-center py-2">
+                  {errors.root.message}
+                </div>
+              )}
             </CardContent>
             <CardFooter className=" flex flex-col gap-3  ">
               <Button type="submit" className="w-full">

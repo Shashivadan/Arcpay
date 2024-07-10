@@ -65,7 +65,7 @@ export const authOption: NextAuthOptions = {
         }
 
         if (!existingUser.isVerfiyed) {
-          const otp = 796248;
+          const otp = "123456";
 
           // Uncomment this when ready to use real OTP generation
           // const otp = await otpGenarater(
@@ -73,7 +73,7 @@ export const authOption: NextAuthOptions = {
           //   existingUser.name
           // );
 
-          const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+          const hashOtp = await bcrypt.hash(otp, 10);
           await prisma.otpVerify.update({
             where: { email: existingUser.email },
             data: {
