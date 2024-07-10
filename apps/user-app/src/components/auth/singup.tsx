@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import {
   Form,
   FormControl,
@@ -40,16 +40,20 @@ export function Signup() {
       username: "",
     },
   });
-  const { register, setError } = form;
+  const {
+    register,
+    setError,
+    formState: { errors },
+  } = form;
 
   const onSubmit = async (value: z.infer<typeof signUpFormSchema>) => {
     try {
       const response = await axios.post("/api/signup", { ...value });
       console.log("susses", response.data);
       router.push("/verify/" + encodeURIComponent(value.email));
-    } catch (error) {
-      console.log("getting error", error);
-      setError("root", { message: "Soming Thing went worng" });
+    } catch (e) {
+      console.log("getting error", e);
+      setError("root", { message: errors.root.message });
     }
 
     // router.replace("/verify/" + value.phoneNumber);
@@ -152,7 +156,7 @@ export function Signup() {
                 Create account
               </Button>
               <FormDescription className="dark:text-white text-black">
-                ddafafas
+                Sign up Here
               </FormDescription>
             </CardFooter>
           </Card>

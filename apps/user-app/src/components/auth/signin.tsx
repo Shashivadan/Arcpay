@@ -59,15 +59,23 @@ export function Signin() {
         email: value.email,
         password: value.password,
       });
-      if (result.error) {
-        setError("root", { message: result.error });
-        return;
-      }
+
+      if (result)
+        if (result.error) {
+          if (result.error === "NeedVerificaion") {
+            router.replace("/verify/" + encodeURIComponent(value.email));
+            return;
+          }
+          setError("root", { message: JSON.stringify(result.error) });
+          return;
+        }
       if (result?.url) {
         router.replace("/dashboard");
       }
+      console.log(result?.url);
     } catch (error) {
-      console.log(error);
+      console.log("error", error);
+
       setError("root", { message: error });
     }
   };

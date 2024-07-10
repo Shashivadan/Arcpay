@@ -5,7 +5,8 @@ import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 interface User extends NextAuthUser {
-  isVerfiyed: boolean;
+  isVerified: boolean;
+  number: string;
 }
 
 type Credentials = {
@@ -18,7 +19,7 @@ declare module "next-auth" {
     user: User;
   }
   interface JWT {
-    isVerfiyed: boolean;
+    isVerified: boolean;
   }
 }
 
@@ -54,24 +55,6 @@ export const authOption: NextAuthOptions = {
           throw new Error("No user found with this email");
         }
 
-        if (existingUser.isVerfiyed === false) {
-          const otp = await otpGenarater(
-            "shashivadan99@gmail.com",
-            existingUser.name
-          );
-          const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
-          prisma.otpVerify.update({
-            where: { email: existingUser.email },
-            data: {
-              otp: hashOtp,
-              expries: new Date(Date.now() + 10 * 60 * 1000),
-            },
-          });
-          throw new Error(
-            "Please verify your email. A new otp is send to mail"
-          );
-        }
-
         const passwordValidation = await bcrypt.compare(
           password,
           existingUser.password
@@ -81,11 +64,33 @@ export const authOption: NextAuthOptions = {
           throw new Error("Incorrect password");
         }
 
+        if (!existingUser.isVerfiyed) {
+          const otp = 796248;
+
+          // Uncomment this when ready to use real OTP generation
+          // const otp = await otpGenarater(
+          //   "shashivadan99@gmail.com",
+          //   existingUser.name
+          // );
+
+          const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+          await prisma.otpVerify.update({
+            where: { email: existingUser.email },
+            data: {
+              otp: hashOtp,
+              expries: new Date(Date.now() + 10 * 60 * 1000),
+            },
+          });
+          throw new Error("NeedVerificaion");
+        }
+
+        // Always return the user, even if not verified
         return {
           id: existingUser.id.toString(),
           name: existingUser.name,
           email: existingUser.email,
-          isVerfiyed: existingUser.isVerfiyed,
+          isVerified: existingUser.isVerfiyed,
+          number: existingUser.number,
         };
       },
     }),
@@ -94,7 +99,8 @@ export const authOption: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.isVerfiyed = (user as User).isVerfiyed;
+        token.isVerified = (user as User).isVerified;
+        token.number = (user as User).number;
       }
       return token;
     },
@@ -102,11 +108,22 @@ export const authOption: NextAuthOptions = {
       if (token?.sub) {
         session.user = {
           ...session.user,
-          id: token?.sub,
-          isVerfiyed: token.isVerfiyed,
+          id: token.sub,
+          isVerified: token.isVerified,
+          number: token.number,
         } as User;
       }
       return session;
     },
+    async signIn({ user }) {
+      if (!(user as User).isVerified) {
+        return false;
+      }
+      return true;
+    },
+  },
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
   },
 };

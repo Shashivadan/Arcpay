@@ -21,6 +21,40 @@ export async function POST(req: NextRequest) {
     });
 
     if (isExisting) {
+      if (isExisting.isVerfiyed === false) {
+        const { success, otp, message } = await otpGenarater(
+          "shashivadan99@gmail.com",
+          isExisting.name
+        );
+
+        if (!success) {
+          return NextResponse.json(
+            {
+              message,
+              success,
+            },
+            { status: 400 }
+          );
+        }
+        const hashOtp = await bcrypt.hash(JSON.stringify(otp), 10);
+        await prisma.otpVerify.update({
+          where: {
+            email: isExisting.email,
+          },
+          data: {
+            otp: hashOtp,
+            expries: new Date(Date.now() + 10 * 60 * 1000),
+          },
+        });
+        return NextResponse.json(
+          {
+            otpVerify: true,
+            success: true,
+            message: "Otp is send to your account",
+          },
+          { status: 201 }
+        );
+      }
       return NextResponse.json(
         { message: "email or number are already exist", success: false },
         { status: 400 }
@@ -65,8 +99,6 @@ export async function POST(req: NextRequest) {
       "shashivadan99@gmail.com",
       createAccount.name
     );
-
-    console.log(otp);
 
     if (!success) {
       return NextResponse.json(

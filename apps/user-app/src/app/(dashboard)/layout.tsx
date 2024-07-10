@@ -1,11 +1,13 @@
 import AppbarClient from "@/components/AppbarClient";
 import { SidebarItem } from "@/components/SidebarItem";
+import { authOption } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
-export default function Layout({
+export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}) {
   return (
     <div>
       <AppbarClient />

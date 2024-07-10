@@ -8,11 +8,11 @@ export default async function page() {
 
   if (session?.user) {
     redirect("/dashboard");
+  } else {
+    return (
+      <>
+        <LandingPage />
+      </>
+    );
   }
-
-  return (
-    <>
-      <LandingPage />
-    </>
-  );
 }

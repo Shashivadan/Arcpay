@@ -7,7 +7,6 @@ import { Appbar } from "@repo/ui/appbar";
 export default function AppbarClient() {
   const router = useRouter();
   const session = useSession();
-  console.log(session);
 
   return (
     <div>
@@ -17,7 +16,7 @@ export default function AppbarClient() {
         }}
         onSignout={async () => {
           await signOut();
-          router.push("/signin");
+          router.push("/");
         }}
         user={session.data?.user}
       />
