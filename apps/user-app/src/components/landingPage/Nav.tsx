@@ -19,13 +19,13 @@ export default function Nav() {
               {/* <UserNav /> */}
               <Button
                 onClick={() => router.push("/signin")}
-                className=" h-9 font-semibold text-white w-24 bg-zinc-900 hover:bg-transparent"
+                className=" h-9 font-semibold text-white w-24 bg-zinc-900 hover:bg-transparent hover:text-black dark:text-white"
               >
                 Sign-In
               </Button>
               <Button
                 onClick={() => router.push("/signup")}
-                className="h-9 font-semibold text-black w-24 hover:bg-transparent hover:text-white "
+                className="h-9 font-semibold  bg-zinc-300 text-black w-24  hover:bg-transparent dark:hover:text-white "
               >
                 Sign-Up
               </Button>

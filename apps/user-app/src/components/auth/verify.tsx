@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/input-otp";
 import { toast } from "@/components/ui/use-toast";
 import { useParams } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError, isAxiosError } from "axios";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -38,6 +38,11 @@ export function InputOTPForm() {
     },
   });
 
+  const {
+    setError,
+    formState: { errors },
+  } = form;
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const result = await axios.post("/api/verify", {
@@ -47,18 +52,11 @@ export function InputOTPForm() {
       console.log(result);
     } catch (e) {
       console.log("error", e);
-    }
 
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">
-            {JSON.stringify(decodeURIComponent(param.username as string))}
-          </code>
-        </pre>
-      ),
-    });
+      if (isAxiosError(e)) {
+        setError("root", { message: e.response.data.message });
+      }
+    }
   }
 
   return (
@@ -103,6 +101,11 @@ export function InputOTPForm() {
                         Please enter the one-time password sent to your phone.
                       </FormDescription>
                       <FormMessage />
+                      {errors.root && (
+                        <div className=" text-sm font-bold text-red-900 ">
+                          {errors.root.message}
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />

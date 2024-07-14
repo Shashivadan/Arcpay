@@ -11,8 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { isValidPhoneNumber } from "react-phone-number-input";
 
 import {
   Form,
@@ -24,13 +22,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { PhoneInput } from "../Phone-input";
 import { signIn } from "next-auth/react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email({ message: "enter a vaild email" }),
@@ -131,7 +129,9 @@ export function Signin() {
                 Sign In
               </Button>
               <FormDescription className="dark:text-white text-black  underline">
-                Create an account Here
+                <Link href="/signup" className="">
+                  Create an account Here
+                </Link>
               </FormDescription>
             </CardFooter>
           </Card>
